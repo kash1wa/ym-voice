@@ -210,13 +210,72 @@ export class OPLLVoice extends YMVoice {
 
   toOPN(): OPNVoice {
     const s = this.slots;
-    return new OPNVoice({
-      fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
-      con: 2,
-      ams: 4, // 5.9dB
-      pms: s[0].pm || s[1].pm ? 2 : 0, // 6.7cent or 0
-      slots: [s[0].toOPN(false), new OPNSlotParam(), new OPNSlotParam(), s[1].toOPN(true)],
-    });
+    if (s[0].ws == 1 && s[1].ws == 0) {
+      // Waveform Mod:1 Car:0
+      var v = new OPNVoice({
+        fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
+        con: 2,
+        ams: 4,
+	      pms: s[0].pm || s[1].pm ? 2 : 0,
+	      slots: [
+	        s[0].toOPN(false),
+	        s[0].toOPN(false),
+	        new OPNSlotParam({
+					  ml: s[0].ml,
+					  tl: s[0].tl,
+					  ar: 31,
+					}),
+	        s[1].toOPN(true),
+	      ]
+	    });
+	    v.slots[1].ml = s[0].ml;
+	    v.slots[2].ml = s[0].ml <= 7 ? s[0].ml * 2 : 15;
+	    if (v.slots[1].ml == 0) {
+			  v.slots[1].ml = 1;
+		    v.slots[2].ml = 2;
+			}
+	    voi.slots[0].tl = (voi.slots[0].tl <= 96) ? voi.slots[0].tl + 15 : 96;
+	    voi.slots[1].tl = (voi.slots[1].tl <= 96) ? voi.slots[1].tl + 15 : 96;
+	    voi.slots[2].tl = (voi.slots[2].tl <= 96) ? voi.slots[2].tl + 22 : 96;
+	    return v;
+    } else
+    if (s[0].ws === 0 && s[1].ws === 1) {
+      // Waveform Mod:0 Car:1
+	    return new opn_voice_1.OPNVoice({
+	      fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
+	      con: 2,
+	      ams: 4,
+	      pms: s[0].pm || s[1].pm ? 2 : 0,
+	      slots: [
+	        s[0].toOPN(false),
+	        new OPNSlotParam({
+			      ml: s[1].ml,
+			      tl: 44,
+			      ar: 31,
+			    }),
+	        new OPNSlotParam({
+					  ml: (s[1].ml <= 7) ? s[1].ml * 2 : 15,
+					  tl: 32,
+					  ar: 31,
+					}),
+	        s[1].toOPN(true),
+	      ]
+      });
+    } else {
+      // Waveform Mod:1 Car:1
+      // Waveform Mod:0 Car:0
+      return new OPNVoice({
+        fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
+        con: 2,
+        ams: 4, // 5.9dB
+        pms: s[0].pm || s[1].pm ? 2 : 0, // 6.7cent or 0
+        slots: [
+          s[0].toOPN(false),
+          new OPNSlotParam({rr:15, tl:127}),
+          new OPNSlotParam({rr:15, tl:127}),
+          s[1].toOPN(true)],
+      });
+    }
   }
 
   toOPM(): OPMVoice {
