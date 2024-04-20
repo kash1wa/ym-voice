@@ -210,72 +210,56 @@ export class OPLLVoice extends YMVoice {
 
   toOPN(): OPNVoice {
     const s = this.slots;
-    if (s[0].ws == 1 && s[1].ws == 0) {
-      // Waveform Mod:1 Car:0
-      var v = new OPNVoice({
-        fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
-        con: 2,
-        ams: 2,
-	      pms: s[0].pm || s[1].pm ? 2 : 0,
-	      slots: [
-	        s[0].toOPN(false),
-	        s[0].toOPN(false),
-	        new OPNSlotParam({
-					  ml: s[0].ml,
-					  tl: s[0].tl,
-					  ar: 31,
-					}),
-	        s[1].toOPN(true),
-	      ]
-	    });
-	    v.slots[1].ml = s[0].ml;
-	    v.slots[2].ml = Math.min(15, s[0].ml * 2);
-	    if (v.slots[1].ml == 0) {
-			  v.slots[1].ml = 1;
-		    v.slots[2].ml = 2;
-			}
-	    voi.slots[0].tl = Math.min(127, voi.slots[0].tl + 15);
-	    voi.slots[1].tl = Math.min(127, voi.slots[0].tl + 15);
-	    voi.slots[2].tl = Math.min(127, voi.slots[2].tl + 22);
-	    return v;
-    } else
-    if (s[0].ws === 0 && s[1].ws === 1) {
+    var v = new OPNVoice({
+      fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
+      con: 2,
+      ams: 2,
+      pms: s[0].pm || s[1].pm ? 2 : 0,
+      slots: [
+        s[0].toOPN(false),
+        new OPNSlotParam({rr:15, tl:127}),
+        new OPNSlotParam({rr:15, tl:127}),
+        s[1].toOPN(true),
+      ]
+    });
+
+    if (s[0].ws === 1 && s[1].ws === 0) {
+        // Waveform Mod:1 Car:0
+        v.slots[1] = s[0].toOPN(false);
+        v.slots[2] = new OPNSlotParam({
+          ml: s[0].ml,
+          tl: s[0].tl,
+          ar: 31,
+        });
+
+        v.slots[1].ml = s[0].ml;
+        v.slots[2].ml = Math.min(15, s[0].ml * 2);
+        if (v.slots[1].ml === 0) {
+          v.slots[2].ml = 1;
+        }
+        v.slots[0].tl = Math.min(127, v.slots[0].tl + 15);
+        v.slots[1].tl = Math.min(127, v.slots[1].tl + 13);
+        v.slots[2].tl = Math.min(127, v.slots[1].tl + 3);
+        return v;
+    }
+    else if (s[0].ws === 0 && s[1].ws === 1) {
       // Waveform Mod:0 Car:1
-	    return new opn_voice_1.OPNVoice({
-	      fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
-	      con: 2,
-	      ams: 2,
-	      pms: s[0].pm || s[1].pm ? 2 : 0,
-	      slots: [
-	        s[0].toOPN(false),
-	        new OPNSlotParam({
-			      ml: s[1].ml,
-			      tl: 44,
-			      ar: 31,
-			    }),
-	        new OPNSlotParam({
-					  ml: (s[1].ml <= 7) ? s[1].ml * 2 : 15,
-					  tl: 32,
-					  ar: 31,
-					}),
-	        s[1].toOPN(true),
-	      ]
+      v.slots[1] = new OPNSlotParam({
+        ml: s[1].ml,
+        tl: 44,
+        ar: 31,
       });
+      v.slots[2] = new OPNSlotParam({
+         ml: Math.min(15, s[1].ml * 2),
+         tl: 32,
+         ar: 31,
+      });
+      // v.slots[3].tl = Math.min(127, v.slots[3].tl + 4);
     } else {
       // Waveform Mod:1 Car:1
       // Waveform Mod:0 Car:0
-      return new OPNVoice({
-        fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
-        con: 2,
-        ams: 2, // 5.9dB
-        pms: s[0].pm || s[1].pm ? 2 : 0, // 6.7cent or 0
-        slots: [
-          s[0].toOPN(false),
-          new OPNSlotParam({rr:15, tl:127}),
-          new OPNSlotParam({rr:15, tl:127}),
-          s[1].toOPN(true)],
-      });
     }
+    return v;
   }
 
   toOPM(): OPMVoice {
