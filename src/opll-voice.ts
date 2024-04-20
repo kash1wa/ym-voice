@@ -223,7 +223,19 @@ export class OPLLVoice extends YMVoice {
       ]
     });
 
-    if (s[0].ws === 1 && s[1].ws === 0) {
+    if (s[0].ws === 1 && s[1].ws === 1) {
+      // Waveform Mod:1 Car:1
+      v.con = 1;
+      v.slots[1] = s[0].toOPN(false);
+      v.slots[1].ml = s[1].ml;
+      v.slots[1].tl = Math.max(0, v.slots[1].tl - 4);
+      v.slots[2] = new OPNSlotParam({
+        ml: s[0].ml,
+        tl: Math.min(127, s[0].tl + 5),
+        ar: 31,
+      });
+    }
+    else if (s[0].ws === 1 && s[1].ws === 0) {
         // Waveform Mod:1 Car:0
         v.slots[1] = s[0].toOPN(false);
         v.slots[2] = new OPNSlotParam({
@@ -256,7 +268,6 @@ export class OPLLVoice extends YMVoice {
       });
       // v.slots[3].tl = Math.min(127, v.slots[3].tl + 4);
     } else {
-      // Waveform Mod:1 Car:1
       // Waveform Mod:0 Car:0
     }
     return v;
