@@ -213,8 +213,8 @@ export class OPLLVoice extends YMVoice {
     var v = new OPNVoice({
       fb: s[0].ws ? Math.min(7, this.fb + 6) : this.fb,
       con: 2,
-      ams: 2,
-      pms: s[0].pm || s[1].pm ? 2 : 0,
+      ams: 2, // 5.9dB
+      pms: s[0].pm || s[1].pm ? 2 : 0, // 6.7cent or 0
       slots: [
         s[0].toOPN(false),
         new OPNSlotParam({rr:15, tl:127}),
@@ -267,7 +267,6 @@ export class OPLLVoice extends YMVoice {
       });
       // v.slots[3].tl = Math.min(127, v.slots[3].tl + 4);
     } else {
-      // Waveform Mod:1 Car:1
       // Waveform Mod:0 Car:0
     }
     return v;
