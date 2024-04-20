@@ -223,7 +223,18 @@ export class OPLLVoice extends YMVoice {
       ]
     });
 
-    if (s[0].ws === 1 && s[1].ws === 0) {
+    if (s[0].ws === 1 && s[1].ws === 1) {
+      // Waveform Mod:1 Car:1
+      v.con = 3;
+      v.fb = Math.max(0, v.fb - 1);
+      v.slots[1] = s[0].toOPN(false);
+      v.slots[2] = s[0].toOPN(false);
+      v.slots[1].ml = Math.min(15, s[1].ml * 5);
+      v.slots[1].tl = Math.min(127, v.slots[1].tl + 16);
+      v.slots[2].sl = v.slots[2].sl / 8;
+      v.slots[2].tl = Math.min(127, v.slots[2].tl + 16);
+    }
+    else if (s[0].ws === 1 && s[1].ws === 0) {
         // Waveform Mod:1 Car:0
         v.slots[1] = s[0].toOPN(false);
         v.slots[2] = new OPNSlotParam({
